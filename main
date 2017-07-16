@@ -1,0 +1,92 @@
+import os
+import sys
+import random
+
+
+words = ['apple', 'banana', 'orange', 'strawberry', 'lime', 'coconut', 'grapefruit', 'lemon', 'kumquat', 'blueberry', 'melon']
+
+def clear():
+    if os.name == "nt":
+        os.system('cls')
+    else:
+        os.system('clear')
+        
+def draw(badGuesses, goodGuesses, secretWord, strikes):
+    clear()
+    print('Strikes: {}/{}'.format(len(badGuesses), strikes))
+    print('')
+    
+    for letter in badGuesses:
+        print(letter, end=" ")
+    print('\n\n')
+    
+    for letter in secretWord:
+        if letter in goodGuesses:
+            print(letter, end='')
+        else:
+            print("_", end='')
+    print('')
+    
+def getGuess(badGuesses, goodGuesses):
+    while True:
+        guess = input("Guess a letter: ").lower()
+        
+        if len(guess) != 1:
+            print("You can only guess one character at a time.")
+        elif guess in badGuesses or guess in goodGuesses:
+            print("You've alrady guessed that letter.")
+        elif not guess.isalpha():
+            print("You can only guess letters.")
+        else:
+            return guess
+
+def play(done):
+    clear()
+    secretWord = random.choice(words)
+    badGuesses = []
+    goodGuesses = []
+    strikes = len(secretWord)+3
+    while True:
+        draw(badGuesses, goodGuesses, secretWord, strikes)
+        guess = getGuess(badGuesses, goodGuesses)
+        if guess in secretWord:
+            goodGuesses.append(guess)
+            found = True
+            for letter in secretWord:
+                if letter not in goodGuesses:
+                    found = False
+            if found:
+                print("You win!")
+                print("The secret word was {}!".format(secretWord))
+                done = True
+        else:
+            badGuesses.append(guess)
+            if len(badGuesses) == strikes:
+                draw(badGuesses, goodGuesses, secretWord, strikes)
+                print("You lost!")
+                print("The secret word was {}!".format(secretWord))
+                done = True
+        if done:
+            playAgain = input("Would you like to play again? Y/n ").lower()
+            if playAgain != "n":
+                return play(done=False)
+            else:
+                sys.exit()
+
+def welcome():
+    start = input("Press enter/return to start game of Q to quit").lower()
+    if start == "q":
+        print("Bye!")
+        sys.exit()
+    else:
+        return True
+    
+
+print("Welcome to Letter Guess")
+
+done = False
+
+while True:
+    clear()
+    welcome()
+    play(done)
